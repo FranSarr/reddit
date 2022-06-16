@@ -2,10 +2,21 @@ import prisma from 'lib/prisma'
 import { getPost, getSubreddit } from 'lib/data.js'
 import Link from 'next/link'
 import timeago from 'lib/timeago'
+import NewComment from 'components/NewComment'
+import { useSession } from 'next-auth/react'
 
 
 
 export default function Post({ subreddit, post }) {
+
+  const { data: session, status } = useSession()
+
+  const loading = status === 'loading'
+  
+  if (loading) {
+    return null
+  }
+
   if (!post) return <p className='text-center p-5'>Post does not exist 😞</p>
   return (
     <>
@@ -43,9 +54,23 @@ export default function Post({ subreddit, post }) {
           <p className='flex-shrink text-base font-normal color-primary width-auto mt-2'>
             {post.content}
           </p>
+
+          {session ? (
+             <NewComment post={post} />
+               ) : (
+              <p className='mt-5'>
+              <a className='mr-1 underline' href='/api/auth/signin'>
+               Login
+               </a>
+              to add a comment
+              </p>
+              )}  
         </div>
       </div>
-    </>
+
+     
+
+ </>
   )
 }
 
